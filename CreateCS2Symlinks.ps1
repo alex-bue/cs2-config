@@ -1,23 +1,27 @@
-# Ensure the script is in the root of the repo where the cfg folder is located
-$cfgDir = Join-Path -Path $PSScriptRoot -ChildPath "cfg"
+param(
+    [string]$SteamPath = "C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg"
+)
 
-# Replace this with the path to your CS:GO cfg directory on your Windows machine
-$csgoCfgDir = "C:\Games\Steam\steamapps\common\Counter-Strike Global Offensive\csgo\cfg" 
+# The cfg directory within the Git repository - assuming this script is located in the root of the repo and 'cfg' is a folder at this location
+$cfgDirInRepo = Join-Path -Path $PSScriptRoot -ChildPath "cfg"
 
-# Check if the CS:GO cfg directory exists
-if (-not (Test-Path -Path $csgoCfgDir)) {
-    Write-Host "CS:GO cfg directory not found. Ensure you have the correct path."
+# Validate input
+$knownCfgFile = "config.cfg"
+
+# Validate the CS:GO cfg directory by checking for the presence of the config.cfg file
+if (-not (Test-Path -Path (Join-Path -Path $SteamPath -ChildPath $knownCfgFile))) {
+    Write-Host "The provided SteamPath does not lead to an existing or complete CS:GO cfg directory with a known config.cfg file. Check the path and try again."
     exit
 }
 
-# Create symlinks for each file in the cfg folder of the Git repository
-Get-ChildItem -Path $cfgDir -File | ForEach-Object {
+# Create symlinks for each file in the 'cfg' folder of the Git repository
+Get-ChildItem -Path $cfgDirInRepo -File | ForEach-Object {
     $filename = $_.Name
-    $symlinkPath = Join-Path -Path $csgoCfgDir -ChildPath $filename
+    $symlinkPath = Join-Path -Path $SteamPath -ChildPath $filename
 
     # Check if the symlink or file already exists in the CS:GO cfg folder
     if (Test-Path -Path $symlinkPath) {
-        Write-Host "File or symlink named $filename already exists in $csgoCfgDir. Skipping."
+        Write-Host "File or symlink named $filename already exists in the CS:GO cfg directory. Skipping."
     } else {
         # Create a symlink in the CS:GO cfg directory pointing to the repo's cfg file
         New-Item -ItemType SymbolicLink -Path $symlinkPath -Target $_.FullName
