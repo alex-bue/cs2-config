@@ -6,11 +6,11 @@ param(
 $cfgDirInRepo = Join-Path -Path $PSScriptRoot -ChildPath "cfg"
 
 # Validate input
-$knownCfgFile = "config.cfg"
+$knownCfgFile = "gamemode_competitive.cfg"
 
 # Validate the CS:GO cfg directory by checking for the presence of the config.cfg file
 if (-not (Test-Path -Path (Join-Path -Path $SteamPath -ChildPath $knownCfgFile))) {
-    Write-Host "The provided SteamPath does not lead to an existing or complete CS:GO cfg directory with a known config.cfg file. Check the path and try again."
+    Write-Host "The provided SteamPath does not lead to an existing or complete CS:GO cfg directory with a known config file. Check the path and try again."
     exit
 }
 
@@ -19,12 +19,7 @@ Get-ChildItem -Path $cfgDirInRepo -File | ForEach-Object {
     $filename = $_.Name
     $symlinkPath = Join-Path -Path $SteamPath -ChildPath $filename
 
-    # Check if the symlink or file already exists in the CS:GO cfg folder
-    if (Test-Path -Path $symlinkPath) {
-        Write-Host "File or symlink named $filename already exists in the CS:GO cfg directory. Skipping."
-    } else {
-        # Create a symlink in the CS:GO cfg directory pointing to the repo's cfg file
-        New-Item -ItemType SymbolicLink -Path $symlinkPath -Target $_.FullName
-        Write-Host "Symlink created for $filename."
-    }
+    # Create a symlink in the CS:GO cfg directory pointing to the repo's cfg file
+    New-Item -ItemType SymbolicLink -Path $symlinkPath -Target $_.FullName
+    Write-Host "Symlink created for $filename."
 }
