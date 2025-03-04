@@ -7,7 +7,7 @@ param (
 # Ensure full language mode
 if ($ExecutionContext.SessionState.LanguageMode -ne "FullLanguage") {
     Write-Host "Error: Script cannot run due to restricted execution policy." -ForegroundColor Red
-    Exit
+    Exit 1
 }
 
 Clear-Host
@@ -55,22 +55,9 @@ if (!(Test-Path -Path $InstallScriptPath)) {
     Exit 1
 }
 
-# Build argument list properly
-$InstallArgs = @(
-    "-ExecutionPolicy", "Bypass",
-    "-File", "`"$InstallScriptPath`"",
-    "-SourcePath", "`"$CfgDir`""
-)
-
-if ($Cs2ConfigPath) {
-    $InstallArgs += @("-Cs2ConfigPath", "`"$Cs2ConfigPath`"")
-}
-
-# Run Install script with elevated privileges and capture the process object
-$process = Start-Process powershell.exe -ArgumentList $InstallArgs -PassThru -Wait -Verb RunAs
-
-# Retrieve the actual exit code (works even if window closes)
-$exitCode = (Get-Process -Id $process.Id -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ExitCode)
+# Run InstallCs2Config.ps1 directly and capture exit code
+& "$InstallScriptPath" -SourcePath "$CfgDir" @($Cs2ConfigPath ? @("-Cs2ConfigPath", "$Cs2ConfigPath") : @{})
+$exitCode = $LASTEXITCODE
 
 # Ensure we only print success message if InstallCs2Config.ps1 exits successfully
 if ($exitCode -eq 0) {
@@ -84,3 +71,4 @@ if ($exitCode -eq 0) {
     Write-Output "❌ Error: Installation script failed with exit code $exitCode." -ForegroundColor Red
     Exit 1
 }
+
