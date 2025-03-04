@@ -44,10 +44,11 @@ if (!(Test-Path -Path $CfgDir)) {
     Exit 1
 }
 
-Write-Output "> Running InstallCs2Config..."
+Write-Output "> Running InstallCs2Config.ps1..."
 
 # Build argument list for InstallCs2Config
-$InstallArgs = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\InstallCs2Config`" -SourcePath `"$CfgDir`""
+# Build argument list
+$InstallArgs = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\InstallCs2Config.ps1`" -SourcePath `"$CfgDir`""
 if ($Cs2ConfigPath) {
     $InstallArgs += " -Cs2ConfigPath `"$Cs2ConfigPath`""
 }
