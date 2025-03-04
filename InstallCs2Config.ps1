@@ -64,4 +64,5 @@ foreach ($file in $CopiedFiles) {
     Write-Output "  - $file -> $Cs2ConfigPath"
 }
 Write-Output "-------------------------------------------------------------------------------------------"
+Exit 0
 
