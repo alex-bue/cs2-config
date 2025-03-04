@@ -45,16 +45,7 @@ if (!(Test-Path -Path $CfgDir)) {
 }
 
 Write-Output "> Running InstallCs2Config.ps1..."
-
-# Build argument list for InstallCs2Config
-# Build argument list
-$InstallArgs = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\InstallCs2Config.ps1`" -SourcePath `"$CfgDir`""
-if ($Cs2ConfigPath) {
-    $InstallArgs += " -Cs2ConfigPath `"$Cs2ConfigPath`""
-}
-
-# Run Deploy script with extracted config path and optional Cs2ConfigPath
-Start-Process powershell.exe -ArgumentList $InstallArgs -NoNewWindow -Wait
+& "$PSScriptRoot\InstallCs2Config.ps1" -SourcePath "$CfgDir" -Cs2ConfigPath "$Cs2ConfigPath"
 
 Write-Output ""
 Write-Output "> Cleaning up temporary files..."
