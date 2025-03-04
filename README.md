@@ -1,10 +1,13 @@
 # Counter-Strike 2 Configuration
 
-Use the `CreateCS2Symlinks.ps1` script to symlink CS2 config files from the repository to your game's `cfg` directory.
+## One-line install
 
-## Setup
-
-Run the `CreateCS2Symlinks.ps1` script with the path to your CS2 `cfg` directory (remove argument if default steam installation):
+With default steam path
 ```powershell
-.\CreateCS2Symlinks.ps1 -SteamPath "C:\Games\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg"
+& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/alex-bue/cs2-config/main/Get.ps1")))
+```
+
+With argument for custom steam / cs2 config path
+```powershell
+& ([scriptblock]::Create((irm "https://raw.githubusercontent.com/alex-bue/cs2-config/main/Get.ps1"))) -Cs2ConfigPath "C:\Games\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg"
 ```
