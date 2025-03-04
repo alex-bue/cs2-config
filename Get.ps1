@@ -44,36 +44,20 @@ if (!(Test-Path -Path $CfgDir)) {
     Exit 1
 }
 
-Write-Output "> Running InstallCs2Config.ps1..."
+Write-Output "> Running InstallCs2Config..."
 
-# Fix: Get script's directory explicitly
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$InstallScriptPath = Join-Path $ScriptDir "InstallCs2Config.ps1"
-
-# Ensure the script exists
-if (!(Test-Path -Path $InstallScriptPath)) {
-    Write-Output "Error: InstallCs2Config.ps1 not found at '$InstallScriptPath'." -ForegroundColor Red
-    Exit 1
-}
-
-# Build argument list correctly
-$InstallArgs = @(
-    "-ExecutionPolicy", "Bypass",
-    "-File", "`"$InstallScriptPath`"",
-    "-SourcePath", "`"$CfgDir`""
-)
-
+# Build argument list for InstallCs2Config
+$InstallArgs = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\InstallCs2Config.ps1`" -SourcePath `"$CfgDir`""
 if ($Cs2ConfigPath) {
-    $InstallArgs += @("-Cs2ConfigPath", "`"$Cs2ConfigPath`"")
+    $InstallArgs += " -Cs2ConfigPath `"$Cs2ConfigPath`""
 }
 
-# Run InstallCs2Config.ps1 in the same window, keeping logs visible
-Start-Process powershell.exe -ArgumentList $InstallArgs -NoNewWindow -Wait
+# Run Deploy script with extracted config path and optional Cs2ConfigPath
+Start-Process powershell.exe -PassThru -NoNewWindow -ArgumentList $InstallArgs -Verb RunAs
 
 Write-Output ""
 Write-Output "> Cleaning up temporary files..."
 Remove-Item -Recurse -Force $TempDir
 
 Write-Output ""
-Write-Output "CS2 configuration installation complete!"
-
+Write-Output "CS2 configuration deployment complete!"
