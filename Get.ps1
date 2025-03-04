@@ -53,7 +53,7 @@ if ($Cs2ConfigPath) {
 }
 
 # Run Deploy script with extracted config path and optional Cs2ConfigPath
-Start-Process powershell.exe -PassThru -NoNewWindow -ArgumentList $InstallArgs -Verb RunAs
+& powershell.exe @($InstallArgs)
 
 Write-Output ""
 Write-Output "> Cleaning up temporary files..."
