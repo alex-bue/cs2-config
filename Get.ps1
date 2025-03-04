@@ -44,16 +44,16 @@ if (!(Test-Path -Path $CfgDir)) {
     Exit 1
 }
 
-Write-Output "> Running InstallCs2Config..."
-
-# Get script path explicitly (ensures it works when running remotely)
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$InstallScriptPath = Join-Path $ScriptDir "InstallCs2Config.ps1"
+Write-Output "> Downloading InstallCs2Config.ps1..."
+$InstallScriptPath = Join-Path $TempDir "InstallCs2Config.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/alex-bue/cs2-config/main/InstallCs2Config.ps1" -OutFile $InstallScriptPath
 
 if (!(Test-Path -Path $InstallScriptPath)) {
-    Write-Output "Error: InstallCs2Config.ps1 not found at '$InstallScriptPath'." -ForegroundColor Red
+    Write-Output "Error: Failed to download InstallCs2Config.ps1." -ForegroundColor Red
     Exit 1
 }
+
+Write-Output "> Running InstallCs2Config..."
 
 # Build the argument list dynamically
 $InstallArgs = @(
@@ -62,10 +62,12 @@ $InstallArgs = @(
     "-SourcePath", $CfgDir
 )
 
+# Only add the Cs2ConfigPath argument if it's provided
 if ($Cs2ConfigPath) {
     $InstallArgs += @("-Cs2ConfigPath", $Cs2ConfigPath)
 }
 
+# Run InstallCs2Config.ps1 directly and capture exit code
 & "$InstallScriptPath" @InstallArgs
 $exitCode = $LASTEXITCODE
 
