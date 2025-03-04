@@ -44,20 +44,30 @@ if (!(Test-Path -Path $CfgDir)) {
     Exit 1
 }
 
-Write-Output "> Running InstallCs2Config..."
+# Build argument list correctly
+$InstallArgs = @(
+    "-ExecutionPolicy", "Bypass",
+    "-File", $InstallScriptPath,
+    "-SourcePath", $CfgDir
+)
 
-# Build argument list for InstallCs2Config
-$InstallArgs = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\InstallCs2Config.ps1`" -SourcePath `"$CfgDir`""
 if ($Cs2ConfigPath) {
-    $InstallArgs += " -Cs2ConfigPath `"$Cs2ConfigPath`""
+    $InstallArgs += @("-Cs2ConfigPath", $Cs2ConfigPath)
 }
 
-# Run Deploy script with extracted config path and optional Cs2ConfigPath
-& powershell.exe @($InstallArgs)
+# Run InstallCs2Config.ps1 and capture process
+Write-Output "> Running InstallCs2Config..."
+$process = Start-Process powershell.exe -ArgumentList $InstallArgs -PassThru -Wait
 
-Write-Output ""
-Write-Output "> Cleaning up temporary files..."
-Remove-Item -Recurse -Force $TempDir
+# Ensure we only print success message if InstallCs2Config.ps1 exits successfully
+if ($process.ExitCode -eq 0) {
+    Write-Output ""
+    Write-Output "> Cleaning up temporary files..."
+    Remove-Item -Recurse -Force $TempDir
 
-Write-Output ""
-Write-Output "CS2 configuration deployment complete!"
+    Write-Output ""
+    Write-Output "CS2 configuration deployment complete!"
+} else {
+    Write-Output "Error: Installation script failed with exit code $($process.ExitCode)." -ForegroundColor Red
+    Exit 1
+}
