@@ -34,10 +34,34 @@ if (-not (Test-Path -Path $Cs2ConfigPath -PathType Container)) {
 }
 
 Write-Output "> Installing CS2 configuration files from '$SourcePath' to '$Cs2ConfigPath'..."
+Write-Output ""
 
-# Copy configuration files
-Copy-Item -Path "$SourcePath\*" -Destination $Cs2ConfigPath -Recurse -Force
+# Track copied files
+$CopiedFiles = @()
+
+# Loop through each file and copy
+$files = Get-ChildItem -Path $SourcePath -File
+foreach ($file in $files) {
+    $destinationFile = Join-Path $Cs2ConfigPath $file.Name
+    if (Test-Path $destinationFile) {
+        Write-Output "  - Replacing existing file: $file.Name"
+        Remove-Item -Path $destinationFile -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Milliseconds 200  # Small delay to release file lock
+    } else {
+        Write-Output "  - Copying new file: $file.Name"
+    }
+    
+    # Copy file
+    Copy-Item -Path $file.FullName -Destination $Cs2ConfigPath -Force
+    $CopiedFiles += $file.Name
+}
 
 Write-Output ""
-Write-Output "Configuration files successfully installed to $Cs2ConfigPath"
+Write-Output "Installation complete!"
+Write-Output "-------------------------------------------------------------------------------------------"
+Write-Output "Summary of installed files:"
+foreach ($file in $CopiedFiles) {
+    Write-Output "  - $file -> $Cs2ConfigPath"
+}
+Write-Output "-------------------------------------------------------------------------------------------"
 
