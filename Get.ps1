@@ -46,8 +46,9 @@ if (!(Test-Path -Path $CfgDir)) {
 
 Write-Output "> Running InstallCs2Config.ps1..."
 
-# Ensure Install script path is correctly resolved
-$InstallScriptPath = Join-Path $PSScriptRoot "InstallCs2Config.ps1"
+# Fix: Get script's directory explicitly
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$InstallScriptPath = Join-Path $ScriptDir "InstallCs2Config.ps1"
 
 # Ensure the script exists
 if (!(Test-Path -Path $InstallScriptPath)) {
