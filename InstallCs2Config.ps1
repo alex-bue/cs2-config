@@ -44,11 +44,11 @@ $files = Get-ChildItem -Path $SourcePath -File
 foreach ($file in $files) {
     $destinationFile = Join-Path $Cs2ConfigPath $file.Name
     if (Test-Path $destinationFile) {
-        Write-Output "  - Replacing existing file: $file.Name"
+        Write-Output "  - Replacing existing file: $file"
         Remove-Item -Path $destinationFile -Force -ErrorAction SilentlyContinue
         Start-Sleep -Milliseconds 200  # Small delay to release file lock
     } else {
-        Write-Output "  - Copying new file: $file.Name"
+        Write-Output "  - Copying new file: $file"
     }
     
     # Copy file
