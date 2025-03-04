@@ -46,16 +46,34 @@ if (!(Test-Path -Path $CfgDir)) {
 
 Write-Output "> Running InstallCs2Config..."
 
-# Build argument list for InstallCs2Config
-$InstallArgs = "-ExecutionPolicy Bypass -File `"$PSScriptRoot\InstallCs2Config.ps1`" -SourcePath `"$CfgDir`""
-if ($Cs2ConfigPath) {
-    $InstallArgs += " -Cs2ConfigPath `"$Cs2ConfigPath`""
+# Get script path explicitly (ensures it works when running remotely)
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$InstallScriptPath = Join-Path $ScriptDir "InstallCs2Config.ps1"
+
+if (!(Test-Path -Path $InstallScriptPath)) {
+    Write-Output "Error: InstallCs2Config.ps1 not found at '$InstallScriptPath'." -ForegroundColor Red
+    Exit 1
 }
 
-# Run script with extracted config path and optional Cs2ConfigPath
-$process = Start-Process powershell.exe -PassThru -ArgumentList $InstallArgs -Verb RunAs
+# Build argument list properly
+$InstallArgs = @(
+    "-ExecutionPolicy", "Bypass",
+    "-File", "`"$InstallScriptPath`"",
+    "-SourcePath", "`"$CfgDir`""
+)
 
-if ($process.ExitCode -eq 0) {
+if ($Cs2ConfigPath) {
+    $InstallArgs += @("-Cs2ConfigPath", "`"$Cs2ConfigPath`"")
+}
+
+# Run Install script with elevated privileges and capture the process object
+$process = Start-Process powershell.exe -ArgumentList $InstallArgs -PassThru -Wait -Verb RunAs
+
+# Retrieve the actual exit code (works even if window closes)
+$exitCode = (Get-Process -Id $process.Id -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ExitCode)
+
+# Ensure we only print success message if InstallCs2Config.ps1 exits successfully
+if ($exitCode -eq 0) {
     Write-Output ""
     Write-Output "> Cleaning up temporary files..."
     Remove-Item -Recurse -Force $TempDir
@@ -63,6 +81,6 @@ if ($process.ExitCode -eq 0) {
     Write-Output ""
     Write-Output "✔ CS2 configuration deployment complete!"
 } else {
-    Write-Output "❌ Error: Installation script failed with exit code $($process.ExitCode)." -ForegroundColor Red
+    Write-Output "❌ Error: Installation script failed with exit code $exitCode." -ForegroundColor Red
     Exit 1
 }
