@@ -55,20 +55,14 @@ if (!(Test-Path -Path $InstallScriptPath)) {
 
 Write-Output "> Running InstallCs2Config..."
 
-# Build the argument list dynamically
-$InstallArgs = @(
-    "-ExecutionPolicy", "Bypass",
-    "-File", $InstallScriptPath,
-    "-SourcePath", $CfgDir
-)
-
-# Only add the Cs2ConfigPath argument if it's provided
+# Build the command string manually to avoid PowerShell parsing errors
+$Command = "& `"$InstallScriptPath`" -SourcePath `"$CfgDir`""
 if ($Cs2ConfigPath) {
-    $InstallArgs += @("-Cs2ConfigPath", $Cs2ConfigPath)
+    $Command += " -Cs2ConfigPath `"$Cs2ConfigPath`""
 }
 
-# Run InstallCs2Config.ps1 directly and capture exit code
-& "$InstallScriptPath" @InstallArgs
+# Run InstallCs2Config.ps1 correctly
+Invoke-Expression $Command
 $exitCode = $LASTEXITCODE
 
 # Ensure we only print success message if InstallCs2Config.ps1 exits successfully
