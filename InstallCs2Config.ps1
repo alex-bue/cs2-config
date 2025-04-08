@@ -1,6 +1,6 @@
 param (
     [string]$SourcePath,
-    [string]$Cs2ConfigPath = "$env:ProgramFiles(x86)\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg"
+    [string]$Cs2ConfigPath = "${env:ProgramFiles(x86)}\Steam\steamapps\common\Counter-Strike Global Offensive\game\csgo\cfg"
 )
 
 # Ensure full language mode
